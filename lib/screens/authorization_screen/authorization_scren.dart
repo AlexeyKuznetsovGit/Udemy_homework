@@ -6,7 +6,6 @@ import 'package:eticon_listner_example/screens/authorization_screen/cubit/author
 import 'package:eticon_listner_example/screens/authorization_screen/cubit/authorization_screen_state.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -31,7 +30,7 @@ class _AuthorizationScreenState extends State<AuthorizationScreen> {
         _passwordFocus.unfocus();
       },
       child: Scaffold(
-        body: BlocListener<AuthorizationScreenCubit, AuthorizationScreenState>(
+        body: BlocConsumer<AuthorizationScreenCubit, AuthorizationScreenState>(
           listener: (context, state) {
             if (state is AuthorizationScreenLoadedState) {
               Navigator.of(context).pop();
@@ -75,7 +74,76 @@ class _AuthorizationScreenState extends State<AuthorizationScreen> {
               );
             }
           },
-          child: Center(
+          builder: (context, state) {
+            if (state is AuthorizationScreenLoadedState) {
+              return Center(
+                child: Text("Вы успешно авторизовались"),
+              );
+            } else {
+              return Center(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 47.w),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ProjectTextOpenSans(
+                          text: 'Авторизация',
+                          size: 24,
+                          color: ProjectColors.violet,
+                        ),
+                        Form(
+                          key: _formKey,
+                          child: Column(
+                            children: [
+                              SizedBox(
+                                height: 30.w,
+                              ),
+                              ProjectTextField(
+                                focusNode: _loginFocus,
+                                controllerForm: _loginController,
+                                hintText: 'Логин',
+                                validate: (val) => val!.isEmpty
+                                    ? 'Поле не может быть пустым'
+                                    : null,
+                              ),
+                              SizedBox(
+                                height: 12.w,
+                              ),
+                              ProjectTextField(
+                                focusNode: _passwordFocus,
+                                controllerForm: _passwordController,
+                                hintText: 'Пароль',
+                                validate: (val) => val!.isEmpty
+                                    ? 'Поле не может быть пустым'
+                                    : null,
+                              ),
+                              SizedBox(
+                                height: 28.w,
+                              ),
+                            ],
+                          ),
+                        ),
+                        MainButton(
+                            text: 'Вход',
+                            onPressed: () {
+                              if (_formKey.currentState!.validate()) {
+                                _loginFocus.unfocus();
+                                _passwordFocus.unfocus();
+                                authorizationCubit.sendData(
+                                    login: this._loginController.text,
+                                    password: this._passwordController.text);
+                              }
+                            }),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            }
+          },
+          /* child: Center(
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 47.w),
               child: SingleChildScrollView(
@@ -135,7 +203,7 @@ class _AuthorizationScreenState extends State<AuthorizationScreen> {
                 ),
               ),
             ),
-          ),
+          ), */
         ),
       ),
     );
